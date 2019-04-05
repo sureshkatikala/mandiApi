@@ -1,4 +1,5 @@
 var express = require('express')
+let database = require('./database');
 const app = express();
 const port = 3000;
 var bodyParser = require('body-parser');
@@ -11,8 +12,10 @@ app.get('/',(req, res)=> {
 
 app.post('/getData', function(req, res) {
     console.log('receiving data ...');
-    console.log('body is ',req.body);
-    res.send(req.body);
+	console.log('body is ',req.body);
+	// res.send(req.body);
+	let dataRecieved = database.getDatabaseData();
+	res.send(dataRecieved);
 });
 
 app.listen(port, () => {console.log("App is running on port 3000")})
