@@ -7,3 +7,14 @@ nvm --version
 nvm install node
 uname -a
 cat /proc/version
+ls
+npm init
+ls
+npm install
+ls
+git push
+ls
+git add .
+git commit -m "Added package.json file"
+git push
+ls
