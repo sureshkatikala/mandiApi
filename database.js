@@ -4,36 +4,38 @@ var connection = mysql.createConnection({
     database: 'groctoov_grretail',
     user: 'groctoov_merch',
     password: 'GROCTAURANT008#groctaurant008#',
+    multipleStatements: true,
 });
 
 
 
-module.exports = {
-    getDatabaseData() {
-        return new Promise((resolve, reject) => {
-            connection.connect(function (err) {
-                if (err) {
-                    console.error('Error connecting: ' + err.stack);
-                    return;
-                }
+function getDatabaseData() {
+    return new Promise((resolve, reject) => {
+        connection.connect(function (err) {
+            if (err) {
+                console.error('Error connecting: ' + err.stack);
+                return;
+            }
 
-                console.log('Connected as id ' + connection.threadId);
-            });
-            connection.query('SELECT * FROM grret_orders WHERE ord_status="Under Processing"', function (error, results, fields) {
-                if (error)
-                    throw error;
+            console.log('Connected as id ' + connection.threadId);
+        });
 
-                let returnObject = {};
-                returnObject.success = true;
-                returnObject.all_order = results.map(result => {
-                    let allOrderObject = {};
-                    allOrderObject.order_id = result.ord_id;
-                    allOrderObject.order_number = result.id;
+        connection.query('SELECT * FROM grret_orders WHERE ord_status="Under Processing"', function (error, results, fields) {
+            if (error)
+                throw error;
 
-                    let recipeNames = result.rec_name.split(", ");
-                    let recipeSKUs = result.rec_sku.split(", ");
+            let returnObject = {};
+            returnObject.success = true;
+            returnObject.all_order = results.map(result => {
+                let allOrderObject = {};
+                allOrderObject.order_id = result.ord_id;
+                allOrderObject.order_number = result.id;
 
-                    allOrderObject.order = recipeNames.map((recipe, index) => ({
+                let recipeNames = result.rec_name.split(", ");
+                let recipeSKUs = result.rec_sku.split(", ");
+
+                allOrderObject.order = recipeNames.map((recipe, index) => {
+                    orderObject = {
                         item_order_id: result.ord_id + "_" + (index + 1),
                         order_id: result.ord_id,
                         cus_phone: result.cus_phone,
@@ -68,15 +70,41 @@ module.exports = {
                         delivery_expected: result.delivery_expected,
                         dispatch_real: result.dispatch_real,
 
-                    }));
+                    };
+                    return getIngredients(result.ord_id, recipe).then(ingredients_results => {
+                        orderObject.ingredients = ingredients_results;
+                        // console.log(orderObject)
+                        return orderObject;
+                    })
+                    // return orderObject;
+                })
+                Promise.all(allOrderObject.order)
+                .then(data => {
+                    console.log(data)
+                })
 
-
-                    return allOrderObject;
-                    // console.log(result);
-                });
-                resolve(returnObject);
+                
+                // console.log(allOrderObject.order)
+                return allOrderObject;
+                // console.log(result);
             });
             connection.end();
-        })
-    }
+            resolve(returnObject);
+        });
+    })
 }
+
+function getIngredients(ord_id, recipe) {
+    return new Promise((resolve, reject) => {
+
+        connection.query('SELECT * FROM grret_orderdetails WHERE ord_id="' + ord_id + '" AND rec_name="' + recipe + '"', function (error, ingredients_results, fields) {
+            if (error)
+                throw error;
+            resolve(ingredients_results)
+
+        })
+    })
+
+}
+
+module.exports.getDatabaseData = getDatabaseData;
