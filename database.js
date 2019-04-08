@@ -72,7 +72,49 @@ function getDatabaseData() {
 
                     };
                     return getIngredients(result.ord_id, recipe).then(ingredients_results => {
-                        orderObject.ingredients = ingredients_results;
+                        orderObject.number_of_ingredient = ingredients_results.length;
+                        orderObject.selected_position = -1;
+
+                        orderObject.ingredient = ingredients_results.map((ingredient, ingredientIndex) =>{
+                            let ingredientObject = {
+                                ingredient_id: result.ord_id + "_" + (index + 1) + "_" + (ingredientIndex + 1),
+                                item_id: result.ord_id + "_" + (index + 1),
+                                ingredient_index: (ingredientIndex + 1),
+                                slip_name: ingredient.slip_name,
+                                ingredient_is_packed_complete: ingredient.ing_pack_status,
+                                ingredient_is_deleted: ingredient.ing_is_deleted,
+                                ingredient_is_labeled: ingredient.ing_label_status,
+                                selected_ingredient_position: ingredient.selected_ingredient_position,
+                                ingredient_measured_total_weight:  ingredient.ing_packed_weight,
+                            }
+                            let allIngredients = ingredient.ing_name.split(", ");
+                            let allQuantities = ingredient.ing_qty.split(", ");
+                            let allMeasurements = ingredient.ing_msr.split(", ");
+                            let allSections = ingredient.ing_section.split(", ");
+                            let allProcess = ingredient.ing_process.split(", ");
+
+                            ingredientObject.ingredient_detail = allIngredients.map((eachIngredient, current_index) => {
+                                ingredient_detail_object = {
+                                    ingredient_detail_id: 0,
+                                    ingredient_id: result.ord_id + "_" + (index + 1) + "_" + (ingredientIndex + 1),
+                                    ingredient_name: eachIngredient,
+                                    ingredient_quantity: allQuantities[current_index],
+                                    ingredient_measure: allMeasurements[current_index],
+                                    ingredient_section: allSections[current_index],
+                                    ingredient_process: allProcess[current_index],
+                                    "ingredient_is_packed": 0,
+                                    "ingredient_pack_timestamp":"" ,
+                                    "ingredient_is_deleted": 0,
+                                    "ingredient_is_weighed": 0,
+                                    "ingredient_detail_index": ingredientIndex + 1,
+                                    "ingredient_detail_position": (current_index+1),
+                                    "ingredient_measured_weight": 0.0,
+                                }
+                                return ingredient_detail_object;
+
+                            })
+                            return ingredientObject
+                        })
                         // console.log(orderObject)
                         return orderObject;
                     })
@@ -84,24 +126,15 @@ function getDatabaseData() {
                     allOrderObject.order = data;
                     return allOrderObject
                 })
-
-                
-                // console.log(allOrderObject.order)
-                // return allOrderObject;
-                // console.log(result);
             });
             let returningData = Promise.all(topPromises)
             .then(data => {
                 returnObject.all_order = data;
-                // console.log(returnObject)
                 return returnObject
             })
             resolve(returningData)
-            // console.log(returnObject)
-            // connection.end();
-            // resolve(returnObject);
+
         })
-        // .then(data => resolve(data));
    })
 }
 
