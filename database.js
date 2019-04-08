@@ -10,7 +10,7 @@ var connection = mysql.createConnection({
 
 
 function getDatabaseData() {
-    return new Promise((resolve, reject) => {
+   return new Promise((resolve, reject) => {
         connection.connect(function (err) {
             if (err) {
                 console.error('Error connecting: ' + err.stack);
@@ -26,7 +26,7 @@ function getDatabaseData() {
 
             let returnObject = {};
             returnObject.success = true;
-            returnObject.all_order = results.map(result => {
+            let topPromises = results.map(result => {
                 let allOrderObject = {};
                 allOrderObject.order_id = result.ord_id;
                 allOrderObject.order_number = result.id;
@@ -34,7 +34,7 @@ function getDatabaseData() {
                 let recipeNames = result.rec_name.split(", ");
                 let recipeSKUs = result.rec_sku.split(", ");
 
-                allOrderObject.order = recipeNames.map((recipe, index) => {
+                let promises = recipeNames.map((recipe, index) => {
                     orderObject = {
                         item_order_id: result.ord_id + "_" + (index + 1),
                         order_id: result.ord_id,
@@ -78,20 +78,31 @@ function getDatabaseData() {
                     })
                     // return orderObject;
                 })
-                Promise.all(allOrderObject.order)
+                return Promise.all(promises)
                 .then(data => {
-                    console.log(data)
+                    // console.log(data)
+                    allOrderObject.order = data;
+                    return allOrderObject
                 })
 
                 
                 // console.log(allOrderObject.order)
-                return allOrderObject;
+                // return allOrderObject;
                 // console.log(result);
             });
-            connection.end();
-            resolve(returnObject);
-        });
-    })
+            let returningData = Promise.all(topPromises)
+            .then(data => {
+                returnObject.all_order = data;
+                // console.log(returnObject)
+                return returnObject
+            })
+            resolve(returningData)
+            // console.log(returnObject)
+            // connection.end();
+            // resolve(returnObject);
+        })
+        // .then(data => resolve(data));
+   })
 }
 
 function getIngredients(ord_id, recipe) {
