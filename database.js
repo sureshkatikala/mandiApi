@@ -38,23 +38,23 @@ function getDatabaseData() {
                     orderObject = {
                         item_order_id: result.ord_id + "_" + (index + 1),
                         order_id: result.ord_id,
-                        cus_phone: result.cus_phone,
-                        cus_name: result.cus_name,
-                        cus_address: result.cus_address,
-                        mer_id: result.mer_id,
-                        Recipe_SKU: recipeSKUs[index],
-                        Recipe_Name: recipe,
-                        rec_cuisine: result.rec_cuisine,
-                        Recipe_Servings: result.rec_serving,
-                        Recipe_Quantity: result.rec_qty,
-                        rec_price: result.rec_price,
+                        customer_phone: result.cus_phone,
+                        customer_name: result.cus_name,
+                        customer_address: result.cus_address,
+                        merchant_id: result.mer_id,
+                        recipe_sku: recipeSKUs[index],
+                        recipe_name: recipe,
+                        recipe_cuisine: result.rec_cuisine,
+                        recipe_servings: result.rec_serving,
+                        recipe_quantity: result.rec_qty,
+                        recipe_price: result.rec_price,
                         sub_total: result.sub_total,
                         discount_percentage: result.discount_percentage,
                         discount: result.discount,
-                        new_cus_discount: result.new_cus_discount,
+                        new_customer_discount: result.new_cus_discount,
                         sgst: result.sgst,
                         cgst: result.cgst,
-                        del_charges: result.del_charges,
+                        delivery_charges: result.del_charges,
                         total_price: result.total_price,
                         grcash: result.grcash,
                         walletcash: result.walletcash,
@@ -62,20 +62,19 @@ function getDatabaseData() {
                         payment_type: result.payment_type,
                         payment_status: result.payment_status,
                         add_notes: result.add_notes,
-                        del_time: result.del_time,
+                        delivery_time: result.del_time,
                         order_at: result.order_at,
                         order_cancel_till: result.order_cancel_till,
-                        Order_Status: result.order_Status,
-                        Order_Number: result.order_number,
+                        order_status: result.order_Status,
+                        order_number: result.order_number,
                         delivery_expected: result.delivery_expected,
                         dispatch_real: result.dispatch_real,
-
                     };
                     return getIngredients(result.ord_id, recipe).then(ingredients_results => {
-                        orderObject.number_of_ingredient = ingredients_results.length;
+                        orderObject.number_of_ingredients = ingredients_results.length;
                         orderObject.selected_position = -1;
 
-                        orderObject.ingredient = ingredients_results.map((ingredient, ingredientIndex) =>{
+                        orderObject.ingredients = ingredients_results.map((ingredient, ingredientIndex) =>{
                             let ingredientObject = {
                                 ingredient_id: result.ord_id + "_" + (index + 1) + "_" + (ingredientIndex + 1),
                                 item_id: result.ord_id + "_" + (index + 1),
@@ -93,7 +92,7 @@ function getDatabaseData() {
                             let allSections = ingredient.ing_section.split(", ");
                             let allProcess = ingredient.ing_process.split(", ");
 
-                            ingredientObject.ingredient_detail = allIngredients.map((eachIngredient, current_index) => {
+                            ingredientObject.ingredient_details = allIngredients.map((eachIngredient, current_index) => {
                                 ingredient_detail_object = {
                                     ingredient_detail_id: 0,
                                     ingredient_id: result.ord_id + "_" + (index + 1) + "_" + (ingredientIndex + 1),
@@ -123,13 +122,13 @@ function getDatabaseData() {
                 return Promise.all(promises)
                 .then(data => {
                     // console.log(data)
-                    allOrderObject.order = data;
+                    allOrderObject.items = data;
                     return allOrderObject
                 })
             });
             let returningData = Promise.all(topPromises)
             .then(data => {
-                returnObject.all_order = data;
+                returnObject.all_orders = data;
                 return returnObject
             })
             resolve(returningData)

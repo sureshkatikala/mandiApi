@@ -17,7 +17,7 @@ app.post('/getData', function (req, res) {
 
 	database.getDatabaseData()
 		.then(dataRecieved => {
-			console.log(dataRecieved)
+			// console.log(dataRecieved)
 			res.send(dataRecieved);
 		})
 
