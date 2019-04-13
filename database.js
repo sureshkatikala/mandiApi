@@ -27,17 +27,19 @@ function getDatabaseData() {
             let returnObject = {};
             returnObject.success = true;
             let topPromises = results.map(result => {
+                // console.log(result)
                 let allOrderObject = {};
                 allOrderObject.order_id = result.ord_id;
-                allOrderObject.order_number = result.id;
+                allOrderObject.order_number = result.order_number;
 
                 let recipeNames = result.rec_name.split(", ");
                 let recipeSKUs = result.rec_sku.split(", ");
 
                 let promises = recipeNames.map((recipe, index) => {
-                    orderObject = {
+                    let orderObject = {
                         item_order_id: result.ord_id + "_" + (index + 1),
                         order_id: result.ord_id,
+                        order_status: result.ord_status,
                         customer_phone: result.cus_phone,
                         customer_name: result.cus_name,
                         customer_address: result.cus_address,
@@ -65,11 +67,12 @@ function getDatabaseData() {
                         delivery_time: result.del_time,
                         order_at: result.order_at,
                         order_cancel_till: result.order_cancel_till,
-                        order_status: result.order_Status,
+                        // order_status: result.order_Status,
                         order_number: result.order_number,
                         delivery_expected: result.delivery_expected,
                         dispatch_real: result.dispatch_real,
                     };
+
                     return getIngredients(result.ord_id, recipe).then(ingredients_results => {
                         orderObject.number_of_ingredients = ingredients_results.length;
                         orderObject.selected_position = -1;
@@ -93,8 +96,8 @@ function getDatabaseData() {
                             let allProcess = ingredient.ing_process.split(", ");
 
                             ingredientObject.ingredient_details = allIngredients.map((eachIngredient, current_index) => {
-                                ingredient_detail_object = {
-                                    ingredient_detail_id: 0,
+                                let ingredient_detail_object = {
+                                    ingredient_detail_id: result.ord_id + "_" + (index + 1) + "_" + (ingredientIndex + 1) + "_" + (current_index + 1),
                                     ingredient_id: result.ord_id + "_" + (index + 1) + "_" + (ingredientIndex + 1),
                                     ingredient_name: eachIngredient,
                                     ingredient_quantity: allQuantities[current_index],
@@ -106,7 +109,7 @@ function getDatabaseData() {
                                     "ingredient_is_deleted": 0,
                                     "ingredient_is_weighed": 0,
                                     "ingredient_detail_index": ingredientIndex + 1,
-                                    "ingredient_detail_position": (current_index+1),
+                                    "ingredient_detail_position": (current_index + 1),
                                     "ingredient_measured_weight": 0.0,
                                 }
                                 return ingredient_detail_object;
