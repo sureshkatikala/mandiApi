@@ -1,10 +1,19 @@
 var express = require('express')
 let database = require('./database');
+let packing = require('./packing');
 let test = require('./test')
 const app = express();
 const port = 3000;
-var bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({ extended: false }));
+// var bodyParser = require('body-parser');
+// app.use(bodyParser.urlencoded({ extended: false }));
+// app.use(bodyParser.json())
+
+
+var bodyParser = require('body-parser')
+
+app.use(bodyParser.urlencoded({
+	extended: true
+  }))
 app.use(bodyParser.json())
 
 app.get('/', (req, res) => {
@@ -17,14 +26,23 @@ app.post('/getData', function (req, res) {
 
 	database.getDatabaseData()
 		.then(dataRecieved => {
-			// console.log(dataRecieved)
 			res.send(dataRecieved);
 		})
-
-		// test.getDatabaseData()
-		// .then(dataRecieved =>{
-		// 	res.send(dataRecieved)
-		// })
 });
+
+app.post('/packing-update',(req,res) => {
+	console.log('body is :', req.body);
+	console.log(req.body);
+
+	packing.updateData(req.body)
+		.then(data => {
+			console.log(data);
+			if(data == 1)
+			res.send({status: "Success"});
+		})
+});
+
+app.post('/test',(req, res) => {
+})
 
 app.listen(port, () => { console.log("App is running on port 3000") })
