@@ -86,6 +86,7 @@ function getDatabaseData() {
                                 ingredient_is_packed_complete: ingredient.ing_pack_status,
                                 ingredient_is_deleted: ingredient.ing_is_deleted,
                                 ingredient_is_labeled: ingredient.ing_label_status,
+                                ingredient_is_scanned: ingredient.ing_is_scanned,
                                 selected_ingredient_position: ingredient.selected_ingredient_position,
                                 ingredient_measured_total_weight:  ingredient.ing_packed_weight,
                             }
